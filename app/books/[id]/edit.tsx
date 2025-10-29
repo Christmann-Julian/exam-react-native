@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { View, Alert } from "react-native";
+import { View } from "react-native";
 import BookForm from "../../../components/BookForm";
-import { getBook, updateBook, deleteBook } from "../../../utils/api";
+import { getBook, updateBook } from "../../../utils/api";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Book } from "../../../types/api";
+import { useFlash } from "../../../utils/FlashProvider";
 
 export default function EditBook() {
   const params = useLocalSearchParams();
   const router = useRouter();
+  const { show } = useFlash();
   const id = Number(params.id);
   const [book, setBook] = useState<Book | null>(null);
 
@@ -33,9 +35,10 @@ export default function EditBook() {
         onSubmit={async (payload) => {
           try {
             await updateBook(id, payload);
-            router.back();
+            show("Modifications enregistrées", "success");
+            router.replace("/books" as any);
           } catch (e: any) {
-            Alert.alert("Erreur", e?.message || String(e));
+            show("Erreur lors de l'enregistrement", "error");
           }
         }}
       />

@@ -11,10 +11,12 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { createNote } from "../../../../utils/api";
+import { useFlash } from "../../../../utils/FlashProvider";
 
 export default function AddNotes() {
   const params = useLocalSearchParams();
   const router = useRouter();
+  const { show } = useFlash();
   const id = Number(params.id);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,9 +29,10 @@ export default function AddNotes() {
     try {
       setLoading(true);
       await createNote(id, content.trim());
+      show("Note ajoutée", "success");
       router.back();
     } catch (e: any) {
-      Alert.alert("Erreur", e?.message || String(e));
+      show("Erreur lors de l'ajout de la note", "error");
     } finally {
       setLoading(false);
     }

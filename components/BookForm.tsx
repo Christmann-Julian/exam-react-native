@@ -29,6 +29,7 @@ export default function BookForm({
   const [name, setName] = useState(initial.name || "");
   const [author, setAuthor] = useState(initial.author || "");
   const [editor, setEditor] = useState(initial.editor || "");
+  const [theme, setTheme] = useState(initial.theme ?? "");
   const [year, setYear] = useState(initial.year ? String(initial.year) : "");
   const [read, setRead] = useState(Boolean(initial.read));
   const [favorite, setFavorite] = useState(Boolean(initial.favorite));
@@ -93,6 +94,7 @@ export default function BookForm({
       name: name.trim(),
       author: author.trim(),
       editor: editor.trim(),
+      theme: theme.trim() || null,
       year: Number(year),
       read,
       favorite,
@@ -158,6 +160,16 @@ export default function BookForm({
           value={editor}
           onChangeText={setEditor}
           placeholder="Ex. Chilton Books"
+          placeholderTextColor="#9aa4b2"
+          returnKeyType="next"
+        />
+
+        <Text style={styles.label}>Thème</Text>
+        <TextInput
+          style={styles.input}
+          value={theme}
+          onChangeText={setTheme}
+          placeholder="Ex. Science-fiction"
           placeholderTextColor="#9aa4b2"
           returnKeyType="next"
         />

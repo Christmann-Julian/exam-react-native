@@ -17,10 +17,12 @@ import { Book, Note } from "../../types/api";
 import { Feather } from "@expo/vector-icons";
 import FavoriteButton from "../../components/FavoriteButton";
 import ReadButton from "../../components/ReadButton";
+import { useFlash } from "../../utils/FlashProvider";
 
 export default function BookDetails() {
   const params = useLocalSearchParams();
   const router = useRouter();
+  const { show } = useFlash();
   const id = Number(params.id);
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(false);
@@ -72,9 +74,10 @@ export default function BookDetails() {
       if (!ok) return;
       try {
         await deleteBook(id);
+        show("Livre supprimé", "success");
         router.replace("/books" as any);
       } catch (e: any) {
-        Alert.alert("Erreur", e?.message || String(e));
+        show("Erreur lors de la suppression du livre", "error");
       }
       return;
     }

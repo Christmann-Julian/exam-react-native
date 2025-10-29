@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import { View, TouchableOpacity, Text, StyleSheet, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { FlashRoot } from "@/utils/FlashProvider";
 
 export default function AppLayout() {
   const router = useRouter();
@@ -37,38 +38,40 @@ export default function AppLayout() {
   );
 
   return (
-    <Stack
-      screenOptions={{
-        headerLeft: () => <LeftIcon />,
-        headerRight: () => <RightActions />,
-        headerTitle: "",
-        headerStyle: {
-          backgroundColor: "#f6f7fb",
-          ...Platform.select({
-            ios: { shadowColor: "transparent" },
-            android: { elevation: 0 },
-          }),
-        },
-        headerShadowVisible: false,
-      }}
-    >
-      <Stack.Screen
-        name="index"
-        options={{
-          title: "Accueil",
+    <FlashRoot>
+      <Stack
+        screenOptions={{
+          headerLeft: () => <LeftIcon />,
+          headerRight: () => <RightActions />,
+          headerTitle: "",
+          headerStyle: {
+            backgroundColor: "#f6f7fb",
+            ...Platform.select({
+              ios: { shadowColor: "transparent" },
+              android: { elevation: 0 },
+            }),
+          },
+          headerShadowVisible: false,
         }}
-      />
-      <Stack.Screen
-        name="books/index"
-        options={{
-          title: "Livres",
-        }}
-      />
-      <Stack.Screen name="books/add" options={{ title: "Ajouter un livre" }} />
-      <Stack.Screen name="books/[id]/edit" options={{ title: "Modifier le livre" }} />
-      <Stack.Screen name="books/[id]" options={{ title: "Détails du livre" }} />
-      <Stack.Screen name="books/[id]/notes/add" options={{ title: "Ajouter une note" }} />
-    </Stack>
+      >
+        <Stack.Screen
+          name="index"
+          options={{
+            title: "Accueil",
+          }}
+        />
+        <Stack.Screen
+          name="books/index"
+          options={{
+            title: "Livres",
+          }}
+        />
+        <Stack.Screen name="books/add" options={{ title: "Ajouter un livre" }} />
+        <Stack.Screen name="books/[id]/edit" options={{ title: "Modifier le livre" }} />
+        <Stack.Screen name="books/[id]" options={{ title: "Détails du livre" }} />
+        <Stack.Screen name="books/[id]/notes/add" options={{ title: "Ajouter une note" }} />
+      </Stack>
+    </FlashRoot>
   );
 }
 

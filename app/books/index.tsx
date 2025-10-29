@@ -1,24 +1,33 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
-    View,
-    Text,
-    FlatList,
-    TouchableOpacity,
-    StyleSheet,
-    RefreshControl,
-    Image,
-    Platform,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  RefreshControl,
+  Image,
+  Platform,
+  TextInput,
 } from "react-native";
 import { getBooks, updateBook } from "../../utils/api";
 import { Book } from "../../types/api";
 import { useRouter, useFocusEffect } from "expo-router";
 import FavoriteButton from "../../components/FavoriteButton";
 import ReadButton from "../../components/ReadButton";
+import Dropdown from "../../components/Dropdown";
+import { Feather } from "@expo/vector-icons";
+
+type FilterKey = "all" | "read" | "unread" | "fav";
+type SortKey = "title" | "author" | "theme";
 
 export default function BooksList() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<FilterKey>("all");
+  const [sortBy, setSortBy] = useState<SortKey>("title");
 
   const load = useCallback(async () => {
     try {
@@ -33,23 +42,23 @@ export default function BooksList() {
   }, []);
 
   const toggleFavorite = async (itemId: number, current: boolean) => {
-    setBooks((prev) => prev.map(b => b.id === itemId ? { ...b, favorite: !current } : b));
+    setBooks((prev) => prev.map((b) => (b.id === itemId ? { ...b, favorite: !current } : b)));
     try {
       await updateBook(itemId, { favorite: !current });
     } catch (e) {
       console.warn("toggle favorite failed", e);
-      setBooks((prev) => prev.map(b => b.id === itemId ? { ...b, favorite: current } : b));
+      setBooks((prev) => prev.map((b) => (b.id === itemId ? { ...b, favorite: current } : b)));
       throw e;
     }
   };
 
   const toggleRead = async (itemId: number, current: boolean) => {
-    setBooks((prev) => prev.map(b => b.id === itemId ? { ...b, read: !current } : b));
+    setBooks((prev) => prev.map((b) => (b.id === itemId ? { ...b, read: !current } : b)));
     try {
       await updateBook(itemId, { read: !current });
     } catch (e) {
       console.warn("toggle read failed", e);
-      setBooks((prev) => prev.map(b => b.id === itemId ? { ...b, read: current } : b));
+      setBooks((prev) => prev.map((b) => (b.id === itemId ? { ...b, read: current } : b)));
       throw e;
     }
   };
@@ -64,6 +73,33 @@ export default function BooksList() {
     }, [load])
   );
 
+  const displayedBooks = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    let list = books.slice();
+
+    if (q) {
+      list = list.filter((b) => {
+        const name = (b.name || "").toLowerCase();
+        const author = (b.author || "").toLowerCase();
+        return name.includes(q) || author.includes(q);
+      });
+    }
+
+    if (filter === "read") list = list.filter((b) => Boolean(b.read));
+    else if (filter === "unread") list = list.filter((b) => !b.read);
+    else if (filter === "fav") list = list.filter((b) => Boolean(b.favorite));
+
+    list.sort((a, b) => {
+      const key = sortBy === "title" ? "name" : sortBy === "author" ? "author" : "theme";
+      const va = (a as any)[key] ?? "";
+      const vb = (b as any)[key] ?? "";
+      if (typeof va === "number" && typeof vb === "number") return va - vb;
+      return String(va).localeCompare(String(vb), undefined, { sensitivity: "base" });
+    });
+
+    return list;
+  }, [books, query, filter, sortBy]);
+
   return (
     <View style={styles.safe}>
       <View style={styles.header}>
@@ -77,15 +113,57 @@ export default function BooksList() {
         </TouchableOpacity>
       </View>
 
+      <View style={styles.topBar}>
+        <View style={styles.searchBox}>
+          <Feather name="search" size={16} color="#94a3b8" />
+          <TextInput
+            placeholder="Rechercher titre / auteur..."
+            placeholderTextColor="#9aa4b2"
+            style={styles.searchInput}
+            value={query}
+            onChangeText={setQuery}
+            returnKeyType="search"
+          />
+          {query ? (
+            <TouchableOpacity onPress={() => setQuery("")}>
+              <Feather name="x" size={16} color="#94a3b8" />
+            </TouchableOpacity>
+          ) : null}
+        </View>
+
+        <View style={styles.dropdownRow}>
+          <Dropdown<FilterKey>
+            value={filter}
+            options={[
+              { key: "all", label: "Tous" },
+              { key: "read", label: "Lus" },
+              { key: "unread", label: "Non lus" },
+              { key: "fav", label: "Favoris" },
+            ]}
+            onSelect={(k) => setFilter(k)}
+          />
+
+          <Dropdown<SortKey>
+            value={sortBy}
+            options={[
+              { key: "title", label: "Titre" },
+              { key: "author", label: "Auteur" },
+              { key: "theme", label: "Thème" },
+            ]}
+            onSelect={(k) => setSortBy(k)}
+          />
+        </View>
+      </View>
+
       <FlatList
-        contentContainerStyle={books.length === 0 ? styles.flatEmpty : undefined}
-        data={books}
+        contentContainerStyle={displayedBooks.length === 0 ? styles.flatEmpty : undefined}
+        data={displayedBooks}
         keyExtractor={(i) => String(i.id)}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.card}
-            activeOpacity={0.8}
+            activeOpacity={0.85}
             onPress={() => router.push(`/books/${String(item.id)}` as any)}
           >
             {item.cover ? (
@@ -99,7 +177,7 @@ export default function BooksList() {
                 {item.name}
               </Text>
               <Text style={styles.subtitle} numberOfLines={1}>
-                {item.author} · {item.year}
+                {item.author} · {item.year} · {item.theme || "Sans thème"}
               </Text>
             </View>
 
@@ -120,7 +198,9 @@ export default function BooksList() {
           </TouchableOpacity>
         )}
         ListEmptyComponent={() => (
-          <View style={styles.empty}><Text style={styles.emptyText}>Aucun livre — tirez vers le bas pour actualiser</Text></View>
+          <View style={styles.empty}>
+            <Text style={styles.emptyText}>Aucun livre — tirez vers le bas pour actualiser</Text>
+          </View>
         )}
       />
     </View>
@@ -165,6 +245,40 @@ const styles = StyleSheet.create({
     fontSize: 22,
     lineHeight: 22,
     fontWeight: "700",
+  },
+  topBar: {
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 10,
+    backgroundColor: "transparent",
+  },
+  searchBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: Platform.OS === "ios" ? 10 : 8,
+    borderWidth: 1,
+    borderColor: "#e6eef8",
+    shadowColor: "#000",
+    shadowOpacity: 0.04,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 1,
+    marginBottom: 10,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 14,
+    color: "#0f1724",
+    padding: 0,
+  },
+
+  dropdownRow: {
+    flexDirection: "row",
+    gap: 8,
   },
   flatEmpty: {
     flexGrow: 1,

@@ -1,19 +1,25 @@
-import React from "react";
+import { useRouter } from "expo-router";
 import { View } from "react-native";
+import { useFlash } from "../../utils/FlashProvider";
 import BookForm from "../../components/BookForm";
 import { createBook } from "../../utils/api";
-import { useRouter } from "expo-router";
 
 export default function AddBook() {
   const router = useRouter();
+  const { show } = useFlash();
 
   return (
     <View style={{ flex: 1 }}>
       <BookForm
         submitLabel="Ajouter"
         onSubmit={async (payload) => {
-          await createBook(payload);
-          router.back();
+          try {
+            await createBook(payload);
+            show("Livre ajouté", "success");
+            router.replace("/books" as any);
+          } catch (e: any) {
+            show("Erreur lors de l'ajout", "error");
+          }
         }}
       />
     </View>
