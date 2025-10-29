@@ -9,17 +9,16 @@ import {
   Image,
   Platform,
   TextInput,
+  ActivityIndicator
 } from "react-native";
-import { getBooks, updateBook } from "../../utils/api";
+import { getBooks, updateBook } from "../../service/api";
 import { Book } from "../../types/api";
+import { FilterKey, SortKey } from "../../types/filter";
 import { useRouter, useFocusEffect } from "expo-router";
 import FavoriteButton from "../../components/FavoriteButton";
 import ReadButton from "../../components/ReadButton";
 import Dropdown from "../../components/Dropdown";
 import { Feather } from "@expo/vector-icons";
-
-type FilterKey = "all" | "read" | "unread" | "fav";
-type SortKey = "title" | "author" | "theme";
 
 export default function BooksList() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -104,13 +103,24 @@ export default function BooksList() {
     <View style={styles.safe}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Mes livres</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          activeOpacity={0.7}
-          onPress={() => router.push("/books/add" as any)}
-        >
-          <Text style={styles.addButtonText}>＋</Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+           style={styles.statsButton}
+           activeOpacity={0.8}
+           onPress={() => router.push("/stats")}
+           accessibilityLabel="Stats"
+         >
+           <Feather name="bar-chart-2" size={18} color="#fff" />
+         </TouchableOpacity>
+         <TouchableOpacity
+           style={styles.addButton}
+           activeOpacity={0.7}
+           onPress={() => router.push("/books/add")}
+           accessibilityLabel="Ajouter"
+         >
+           <Text style={styles.addButtonText}>＋</Text>
+         </TouchableOpacity>
+       </View>
       </View>
 
       <View style={styles.topBar}>
@@ -155,54 +165,60 @@ export default function BooksList() {
         </View>
       </View>
 
-      <FlatList
-        contentContainerStyle={displayedBooks.length === 0 ? styles.flatEmpty : undefined}
-        data={displayedBooks}
-        keyExtractor={(i) => String(i.id)}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.card}
-            activeOpacity={0.85}
-            onPress={() => router.push(`/books/${String(item.id)}` as any)}
-          >
-            {item.cover ? (
-              <Image source={{ uri: item.cover }} style={styles.avatarImage} resizeMode="cover" />
-            ) : (
-              <View style={styles.avatar}></View>
-            )}
+      {loading && books.length === 0 ? (
+       <View style={styles.loaderContainer}>
+         <ActivityIndicator size="large" color="#007aff" />
+       </View>
+     ) : (
+       <FlatList
+         contentContainerStyle={displayedBooks.length === 0 ? styles.flatEmpty : undefined}
+         data={displayedBooks}
+         keyExtractor={(i) => String(i.id)}
+         refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
+         renderItem={({ item }) => (
+           <TouchableOpacity
+             style={styles.card}
+             activeOpacity={0.85}
+             onPress={() => router.push(`/books/${String(item.id)}` as any)}
+           >
+             {item.cover ? (
+               <Image source={{ uri: item.cover }} style={styles.avatarImage} resizeMode="cover" />
+             ) : (
+               <View style={styles.avatar}></View>
+             )}
 
-            <View style={styles.cardContent}>
-              <Text style={styles.title} numberOfLines={1}>
-                {item.name}
-              </Text>
-              <Text style={styles.subtitle} numberOfLines={1}>
-                {item.author} · {item.year} · {item.theme || "Sans thème"}
-              </Text>
-            </View>
+             <View style={styles.cardContent}>
+               <Text style={styles.title} numberOfLines={1}>
+                 {item.name}
+               </Text>
+               <Text style={styles.subtitle} numberOfLines={1}>
+                 {item.author} · {item.year} · {item.theme || "Sans thème"}
+               </Text>
+             </View>
 
-            <ReadButton
-              value={Boolean(item.read)}
-              onToggle={() => toggleRead(item.id as number, Boolean(item.read))}
-              size={22}
-              style={{ marginRight: 8 }}
-            />
+             <ReadButton
+               value={Boolean(item.read)}
+               onToggle={() => toggleRead(item.id as number, Boolean(item.read))}
+               size={22}
+               style={{ marginRight: 8 }}
+             />
 
-            <FavoriteButton
-              value={Boolean(item.favorite)}
-              onToggle={() => toggleFavorite(item.id as number, Boolean(item.favorite))}
-              size={20}
-            />
+             <FavoriteButton
+               value={Boolean(item.favorite)}
+               onToggle={() => toggleFavorite(item.id as number, Boolean(item.favorite))}
+               size={20}
+             />
 
-            <Text style={styles.chevron}>›</Text>
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={() => (
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>Aucun livre — tirez vers le bas pour actualiser</Text>
-          </View>
-        )}
-      />
+             <Text style={styles.chevron}>›</Text>
+           </TouchableOpacity>
+         )}
+         ListEmptyComponent={() => (
+           <View style={styles.empty}>
+             <Text style={styles.emptyText}>Aucun livre — tirez vers le bas pour actualiser</Text>
+           </View>
+         )}
+       />
+     )}
     </View>
   );
 }
@@ -211,6 +227,11 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: "#f6f7fb",
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
     height: 64,
@@ -245,6 +266,24 @@ const styles = StyleSheet.create({
     fontSize: 22,
     lineHeight: 22,
     fontWeight: "700",
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  statsButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: "#10b981",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+    shadowColor: "#10b981",
+    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
   },
   topBar: {
     paddingHorizontal: 12,

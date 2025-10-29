@@ -10,8 +10,8 @@ import {
   Platform,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { createNote } from "../../../../utils/api";
-import { useFlash } from "../../../../utils/FlashProvider";
+import { createNote } from "../../../../service/api";
+import { useFlash } from "../../../../service/FlashProvider";
 
 export default function AddNotes() {
   const params = useLocalSearchParams();

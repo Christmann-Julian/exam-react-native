@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import BookForm from "../../../components/BookForm";
-import { getBook, updateBook } from "../../../utils/api";
+import { getBook, updateBook } from "../../../service/api";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Book } from "../../../types/api";
-import { useFlash } from "../../../utils/FlashProvider";
+import { useFlash } from "../../../service/FlashProvider";
 
 export default function EditBook() {
   const params = useLocalSearchParams();

@@ -3,7 +3,7 @@ import { Stack } from "expo-router";
 import { View, TouchableOpacity, Text, StyleSheet, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { FlashRoot } from "@/utils/FlashProvider";
+import { FlashRoot } from "@/service/FlashProvider";
 
 export default function AppLayout() {
   const router = useRouter();

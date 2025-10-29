@@ -12,12 +12,12 @@ import {
   FlatList,
 } from "react-native";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
-import { getBook, deleteBook, updateBook, getNotes } from "../../utils/api";
+import { getBook, deleteBook, updateBook, getNotes, getOpenLibraryEditionCount } from "../../service/api";
 import { Book, Note } from "../../types/api";
 import { Feather } from "@expo/vector-icons";
 import FavoriteButton from "../../components/FavoriteButton";
 import ReadButton from "../../components/ReadButton";
-import { useFlash } from "../../utils/FlashProvider";
+import { useFlash } from "../../service/FlashProvider";
 
 export default function BookDetails() {
   const params = useLocalSearchParams();
@@ -26,7 +26,7 @@ export default function BookDetails() {
   const id = Number(params.id);
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const [editionCount, setEditionCount] = useState<number | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [loadingNotes, setLoadingNotes] = useState(false);
 
@@ -36,6 +36,13 @@ export default function BookDetails() {
     try {
       const b = await getBook(id);
       setBook(b);
+      try {
+        const count = await getOpenLibraryEditionCount(b.name);
+        setEditionCount(count);
+      } catch (e) {
+        console.warn("failed to fetch openlibrary edition count", e);
+        setEditionCount(null);
+      }
     } catch (e) {
       console.warn(e);
     } finally {
@@ -195,6 +202,13 @@ export default function BookDetails() {
             <Text style={styles.metaLine}>
               <Text style={styles.metaLabel}>Thème: </Text>
               {book.theme}
+            </Text>
+          ) : null}
+
+          {editionCount != null ? (
+            <Text style={styles.metaLine}>
+              <Text style={styles.metaLabel}>Nombre d'éditions: </Text>
+              {editionCount}
             </Text>
           ) : null}
 

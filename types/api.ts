@@ -17,3 +17,8 @@ export type Note = {
   content: string;
   dateISO: string;
 };
+
+export type PendingOp =
+  | { type: "create"; payload: Partial<Book>; tempId: number; ts: number }
+  | { type: "update"; id: number; payload: Partial<Book>; ts: number }
+  | { type: "delete"; id: number; ts: number };

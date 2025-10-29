@@ -1,14 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Animated, Text, StyleSheet, ViewStyle } from "react-native";
-
-type Props = {
-  message?: string;
-  type?: "success" | "error";
-  visible?: boolean;
-  duration?: number; // ms
-  onHide?: () => void;
-  style?: ViewStyle;
-};
+import type { FlashMessageProps } from "../types/props";
 
 export default function FlashMessage({
   message,
@@ -17,7 +9,7 @@ export default function FlashMessage({
   duration = 2200,
   onHide,
   style,
-}: Props) {
+}: FlashMessageProps) {
   const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {

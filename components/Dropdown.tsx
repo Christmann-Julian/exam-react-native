@@ -10,16 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-
-type Option<T extends string> = { key: T; label: string };
-
-type Props<T extends string> = {
-  label?: string;
-  value: T;
-  options: Option<T>[];
-  onSelect: (k: T) => void;
-  minWidth?: number;
-};
+import type { DropdownProps } from "../types/props";
 
 export default function Dropdown<T extends string>({
   label,
@@ -27,7 +18,7 @@ export default function Dropdown<T extends string>({
   options,
   onSelect,
   minWidth = 96,
-}: Props<T>) {
+}: DropdownProps<T>) {
   const [open, setOpen] = useState(false);
 
   return (

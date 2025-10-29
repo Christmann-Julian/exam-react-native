@@ -1,14 +1,7 @@
 import React, { useState } from "react";
 import { TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-
-type Props = {
-  value: boolean;
-  onToggle: (next: boolean) => Promise<void> | void;
-  size?: number;
-  activeColor?: string;
-  inactiveColor?: string;
-};
+import type { FavoriteButtonProps } from "../types/props";
 
 export default function FavoriteButton({
   value,
@@ -16,7 +9,7 @@ export default function FavoriteButton({
   size = 20,
   activeColor = "#ef4444",
   inactiveColor = "#cbd5e1",
-}: Props) {
+}: FavoriteButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handlePress = async () => {

@@ -12,20 +12,16 @@ import {
   Image,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { Book } from "../types/api";
+import type { Book } from "../types/api";
+import type { BookFormProps } from "../types/props";
 import Star from "./Star";
 
-type Props = {
-  initial?: Partial<Book>;
-  onSubmit: (payload: Partial<Book>) => Promise<void> | void;
-  submitLabel?: string;
-};
 
 export default function BookForm({
   initial = {},
   onSubmit,
   submitLabel = "Enregistrer",
-}: Props) {
+}: BookFormProps) {
   const [name, setName] = useState(initial.name || "");
   const [author, setAuthor] = useState(initial.author || "");
   const [editor, setEditor] = useState(initial.editor || "");

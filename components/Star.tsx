@@ -1,15 +1,7 @@
 import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-
-type Props = {
-  value: number | null;
-  onChange: (v: number | null) => void;
-  max?: number;
-  size?: number;
-  activeColor?: string;
-  inactiveColor?: string;
-};
+import type { StarProps } from "../types/props";
 
 export default function Star({
   value,
@@ -18,7 +10,7 @@ export default function Star({
   size = 24,
   activeColor = "#ffb400",
   inactiveColor = "#cbd5e1",
-}: Props) {
+}: StarProps) {
   const stars = Array.from({ length: max }, (_, i) => i + 1);
 
   return (

@@ -10,15 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-
-type Props = {
-  value: boolean;
-  onToggle: (next: boolean) => Promise<void> | void;
-  size?: number;
-  activeColor?: string;
-  inactiveColor?: string;
-  style?: ViewStyle;
-};
+import type { ReadButtonProps } from "../types/props";
 
 export default function ReadButton({
   value,
@@ -27,7 +19,7 @@ export default function ReadButton({
   activeColor = "#10b981",
   inactiveColor = "#64748b",
   style,
-}: Props) {
+}: ReadButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handlePress = async () => {
