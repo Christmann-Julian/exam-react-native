@@ -11,12 +11,15 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { createNote } from "../../../../service/api";
-import { useFlash } from "../../../../service/FlashProvider";
+import { useFlash } from "../../../../context/FlashProvider";
+import { useTheme } from "../../../../context/theme";
 
 export default function AddNotes() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const { show } = useFlash();
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
   const id = Number(params.id);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
@@ -47,7 +50,7 @@ export default function AddNotes() {
           multiline
           numberOfLines={6}
           placeholder="Écris ta note ici..."
-          placeholderTextColor="#9aa4b2"
+          placeholderTextColor={theme.colors.muted}
           value={content}
           onChangeText={setContent}
         />
@@ -64,33 +67,35 @@ export default function AddNotes() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#f6f7fb" },
-  container: { padding: 16 },
-  title: { fontSize: 20, fontWeight: "700", marginBottom: 12, color: "#0f1724" },
-  input: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 12,
-    minHeight: 140,
-    textAlignVertical: "top",
-    marginBottom: 12,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOpacity: 0.03,
-        shadowOffset: { width: 0, height: 4 },
-        shadowRadius: 8,
-      },
-      android: { elevation: 1 },
-    }),
-  },
-  button: {
-    backgroundColor: "#007aff",
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  buttonDisabled: { opacity: 0.7 },
-  buttonText: { color: "#fff", fontWeight: "700" },
-});
+function createStyles(theme: ReturnType<typeof useTheme> extends { theme: infer T } ? T : any) {
+  return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: theme.colors.background },
+    container: { padding: 16 },
+    title: { fontSize: 20, fontWeight: "700", marginBottom: 12, color: theme.colors.text },
+    input: {
+      backgroundColor: theme.colors.card,
+      borderRadius: 10,
+      padding: 12,
+      minHeight: 140,
+      textAlignVertical: "top",
+      marginBottom: 12,
+      ...Platform.select({
+        ios: {
+          shadowColor: "#000",
+          shadowOpacity: 0.03,
+          shadowOffset: { width: 0, height: 4 },
+          shadowRadius: 8,
+        },
+        android: { elevation: 1 },
+      }),
+    },
+    button: {
+      backgroundColor: theme.colors.primary,
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: "center",
+    },
+    buttonDisabled: { opacity: 0.7 },
+    buttonText: { color: "#fff", fontWeight: "700" },
+  });
+}

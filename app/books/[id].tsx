@@ -17,12 +17,15 @@ import { Book, Note } from "../../types/api";
 import { Feather } from "@expo/vector-icons";
 import FavoriteButton from "../../components/FavoriteButton";
 import ReadButton from "../../components/ReadButton";
-import { useFlash } from "../../service/FlashProvider";
+import { useFlash } from "../../context/FlashProvider";
+import { useTheme } from "../../context/theme";
 
 export default function BookDetails() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const { show } = useFlash();
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
   const id = Number(params.id);
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(false);
@@ -134,7 +137,7 @@ export default function BookDetails() {
     return (
       <View style={styles.safe}>
         <View style={styles.center}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
       </View>
     );
@@ -163,7 +166,7 @@ export default function BookDetails() {
               onPress={() => router.push(`/books/${id}/edit` as any)}
               accessibilityLabel="Modifier"
             >
-              <Feather name="edit-2" size={18} color="#0f1724" />
+              <Feather name="edit-2" size={18} color={theme.colors.text} />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -171,7 +174,7 @@ export default function BookDetails() {
               onPress={handleDelete}
               accessibilityLabel="Supprimer"
             >
-              <Feather name="trash-2" size={18} color="#fff" />
+              <Feather name="trash-2" size={18} color={theme.colors.card} />
             </TouchableOpacity>
           </View>
         </View>
@@ -240,7 +243,7 @@ export default function BookDetails() {
 
         <View style={styles.notesContainer}>
           {loadingNotes ? (
-            <ActivityIndicator />
+            <ActivityIndicator color={theme.colors.primary} />
           ) : notes.length === 0 ? (
             <Text style={styles.emptyText}>Aucune note pour ce livre</Text>
           ) : (
@@ -263,123 +266,125 @@ export default function BookDetails() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#f6f7fb" },
-  container: { padding: 16 },
-  center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  emptyText: { color: "#94a3b8" },
-  headerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  title: { fontSize: 22, fontWeight: "800", color: "#0f1724", flex: 1 },
-  headerActions: { flexDirection: "row", marginLeft: 12 },
-  iconBtn: {
-    backgroundColor: "#fff",
-    padding: 8,
-    borderRadius: 10,
-    marginLeft: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  deleteBtn: {
-    backgroundColor: "#ef4444",
-  },
-  cover: {
-    width: "100%",
-    height: 220,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  coverPlaceholder: {
-    width: "100%",
-    height: 220,
-    borderRadius: 12,
-    marginBottom: 12,
-    backgroundColor: "#007aff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  meta: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 12,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOpacity: 0.06,
-        shadowOffset: { width: 0, height: 6 },
-        shadowRadius: 12,
-      },
-      android: { elevation: 2 },
-    }),
-  },
-  metaLine: { marginBottom: 8, color: "#334155" },
-  metaLabel: { color: "#475569", fontWeight: "700" },
-  row: { flexDirection: "row", marginTop: 8 },
-  badge: {
-    backgroundColor: "#e6eef8",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    marginRight: 8,
-  },
-  favBadge: { backgroundColor: "#fff7ed" },
-  badgeText: { color: "#475569", fontWeight: "700" },
-  favBadgeText: { color: "#ff8b00" },
-  smallHint: { color: "#94a3b8", marginTop: 6, fontSize: 12 },
-  notesHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  sectionTitle: { fontSize: 18, fontWeight: "700", color: "#0f1724" },
-  addNoteBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#007aff",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-  },
-  addNoteText: {
-    color: "#fff",
-    marginLeft: 8,
-    fontWeight: "700",
-  },
-  notesContainer: {
-    marginBottom: 24,
-  },
-  noteCard: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 10,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOpacity: 0.04,
-        shadowOffset: { width: 0, height: 4 },
-        shadowRadius: 8,
-      },
-      android: { elevation: 1 },
-    }),
-  },
-  noteDate: {
-    color: "#94a3b8",
-    fontSize: 12,
-    marginBottom: 6,
-  },
-  noteContent: {
-    color: "#334155",
-    fontSize: 14,
-  },
-});
+function createStyles(theme: ReturnType<typeof useTheme> extends { theme: infer T } ? T : any) {
+  return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: theme.colors.background },
+    container: { padding: 16 },
+    center: { flex: 1, alignItems: "center", justifyContent: "center" },
+    emptyText: { color: theme.colors.muted },
+    headerRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 12,
+    },
+    title: { fontSize: 22, fontWeight: "800", color: theme.colors.text, flex: 1 },
+    headerActions: { flexDirection: "row", marginLeft: 12 },
+    iconBtn: {
+      backgroundColor: theme.colors.card,
+      padding: 8,
+      borderRadius: 10,
+      marginLeft: 8,
+      alignItems: "center",
+      justifyContent: "center",
+      shadowColor: "#000",
+      shadowOpacity: 0.06,
+      shadowOffset: { width: 0, height: 4 },
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    deleteBtn: {
+      backgroundColor: theme.colors.danger,
+    },
+    cover: {
+      width: "100%",
+      height: 220,
+      borderRadius: 12,
+      marginBottom: 12,
+    },
+    coverPlaceholder: {
+      width: "100%",
+      height: 220,
+      borderRadius: 12,
+      marginBottom: 12,
+      backgroundColor: theme.colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    meta: {
+      backgroundColor: theme.colors.card,
+      borderRadius: 12,
+      padding: 12,
+      ...Platform.select({
+        ios: {
+          shadowColor: "#000",
+          shadowOpacity: 0.06,
+          shadowOffset: { width: 0, height: 6 },
+          shadowRadius: 12,
+        },
+        android: { elevation: 2 },
+      }),
+    },
+    metaLine: { marginBottom: 8, color: theme.colors.text },
+    metaLabel: { color: theme.colors.text, fontWeight: "700" },
+    row: { flexDirection: "row", marginTop: 8 },
+    badge: {
+      backgroundColor: theme.colors.soft,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 999,
+      marginRight: 8,
+    },
+    favBadge: { backgroundColor: theme.colors.card },
+    badgeText: { color: theme.colors.text, fontWeight: "700" },
+    favBadgeText: { color: theme.colors.accent },
+    smallHint: { color: theme.colors.muted, marginTop: 6, fontSize: 12 },
+    notesHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 12,
+    },
+    sectionTitle: { fontSize: 18, fontWeight: "700", color: theme.colors.text },
+    addNoteBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: theme.colors.primary,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      borderRadius: 10,
+    },
+    addNoteText: {
+      color: "#fff",
+      marginLeft: 8,
+      fontWeight: "700",
+    },
+    notesContainer: {
+      marginBottom: 24,
+    },
+    noteCard: {
+      backgroundColor: theme.colors.card,
+      borderRadius: 10,
+      padding: 12,
+      marginBottom: 10,
+      ...Platform.select({
+        ios: {
+          shadowColor: "#000",
+          shadowOpacity: 0.04,
+          shadowOffset: { width: 0, height: 4 },
+          shadowRadius: 8,
+        },
+        android: { elevation: 1 },
+      }),
+    },
+    noteDate: {
+      color: theme.colors.muted,
+      fontSize: 12,
+      marginBottom: 6,
+    },
+    noteContent: {
+      color: theme.colors.text,
+      fontSize: 14,
+    },
+  });
+}

@@ -19,8 +19,11 @@ import FavoriteButton from "../../components/FavoriteButton";
 import ReadButton from "../../components/ReadButton";
 import Dropdown from "../../components/Dropdown";
 import { Feather } from "@expo/vector-icons";
+import { useTheme } from "../../context/theme";
 
 export default function BooksList() {
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -223,166 +226,167 @@ export default function BooksList() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#f6f7fb",
-  },
-  loaderContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  header: {
-    height: 64,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#eceff3",
-    backgroundColor: "transparent",
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#0f1724",
-  },
-  addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: "#007aff",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#007aff",
-    shadowOpacity: 0.15,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  addButtonText: {
-    color: "#fff",
-    fontSize: 22,
-    lineHeight: 22,
-    fontWeight: "700",
-  },
-  headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  statsButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: "#10b981",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
-    shadowColor: "#10b981",
-    shadowOpacity: 0.12,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  topBar: {
-    paddingHorizontal: 12,
-    paddingTop: 12,
-    paddingBottom: 10,
-    backgroundColor: "transparent",
-  },
-  searchBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: Platform.OS === "ios" ? 10 : 8,
-    borderWidth: 1,
-    borderColor: "#e6eef8",
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 1,
-    marginBottom: 10,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 8,
-    fontSize: 14,
-    color: "#0f1724",
-    padding: 0,
-  },
-
-  dropdownRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  flatEmpty: {
-    flexGrow: 1,
-    justifyContent: "center",
-  },
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 14,
-    marginHorizontal: 12,
-    marginVertical: 6,
-    borderRadius: 12,
-    backgroundColor: "#fff",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOpacity: 0.06,
-        shadowOffset: { width: 0, height: 4 },
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
-  },
-  avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
-    backgroundColor: "#007aff",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-  avatarImage: {
-    width: 56,
-    height: 56,
-    borderRadius: 10,
-    marginRight: 12,
-    backgroundColor: "#f3f4f6",
-  },
-  cardContent: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  title: {
-    fontWeight: "700",
-    color: "#0f1724",
-    fontSize: 16,
-  },
-  subtitle: {
-    color: "#64748b",
-    marginTop: 4,
-    fontSize: 13,
-  },
-  chevron: {
-    color: "#cbd5e1",
-    fontSize: 22,
-    marginLeft: 8,
-  },
-  empty: {
-    padding: 24,
-    alignItems: "center",
-  },
-  emptyText: {
-    color: "#94a3b8",
-  },
-});
+function createStyles(theme: ReturnType<typeof useTheme> extends { theme: infer T } ? T : any) {
+  return StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    loaderContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    header: {
+      height: 64,
+      paddingHorizontal: 16,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+      backgroundColor: "transparent",
+    },
+    headerTitle: {
+      fontSize: 20,
+      fontWeight: "700",
+      color: theme.colors.text,
+    },
+    addButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 10,
+      backgroundColor: theme.colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+      shadowColor: theme.colors.primary,
+      shadowOpacity: 0.15,
+      shadowOffset: { width: 0, height: 2 },
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    addButtonText: {
+      color: theme.colors.card,
+      fontSize: 22,
+      lineHeight: 22,
+      fontWeight: "700",
+    },
+    headerActions: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    statsButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 10,
+      backgroundColor: theme.colors.success,
+      alignItems: "center",
+      justifyContent: "center",
+      marginRight: 8,
+      shadowColor: theme.colors.success,
+      shadowOpacity: 0.12,
+      shadowOffset: { width: 0, height: 2 },
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    topBar: {
+      paddingHorizontal: 12,
+      paddingTop: 12,
+      paddingBottom: 10,
+      backgroundColor: "transparent",
+    },
+    searchBox: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: theme.colors.card,
+      borderRadius: 12,
+      paddingHorizontal: 12,
+      paddingVertical: Platform.OS === "ios" ? 10 : 8,
+      borderWidth: 1,
+      borderColor: theme.colors.soft,
+      shadowColor: "#000",
+      shadowOpacity: 0.04,
+      shadowOffset: { width: 0, height: 2 },
+      shadowRadius: 6,
+      elevation: 1,
+      marginBottom: 10,
+    },
+    searchInput: {
+      flex: 1,
+      marginLeft: 8,
+      fontSize: 14,
+      color: theme.colors.text,
+      padding: 0,
+    },
+      dropdownRow: {
+      flexDirection: "row",
+      gap: 8,
+    },
+    flatEmpty: {
+      flexGrow: 1,
+      justifyContent: "center",
+    },
+    card: {
+      flexDirection: "row",
+      alignItems: "center",
+      padding: 14,
+      marginHorizontal: 12,
+      marginVertical: 6,
+      borderRadius: 12,
+      backgroundColor: theme.colors.card,
+      ...Platform.select({
+        ios: {
+          shadowColor: "#000",
+          shadowOpacity: 0.06,
+          shadowOffset: { width: 0, height: 4 },
+          shadowRadius: 10,
+        },
+        android: {
+          elevation: 2,
+        },
+      }),
+    },
+    avatar: {
+      width: 56,
+      height: 56,
+      borderRadius: 12,
+      backgroundColor: theme.colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+      marginRight: 12,
+    },
+    avatarImage: {
+      width: 56,
+      height: 56,
+      borderRadius: 10,
+      marginRight: 12,
+      backgroundColor: theme.colors.soft,
+    },
+    cardContent: {
+      flex: 1,
+      justifyContent: "center",
+    },
+    title: {
+      fontWeight: "700",
+      color: theme.colors.text,
+      fontSize: 16,
+    },
+      subtitle: {
+      color: theme.colors.muted,
+      marginTop: 4,
+      fontSize: 13,
+    },
+    chevron: {
+      color: theme.colors.border,
+      fontSize: 22,
+      marginLeft: 8,
+    },
+    empty: {
+      padding: 24,
+      alignItems: "center",
+    },
+    emptyText: {
+      color: theme.colors.muted,
+    },
+  });
+};

@@ -4,7 +4,7 @@ import BookForm from "../../../components/BookForm";
 import { getBook, updateBook } from "../../../service/api";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Book } from "../../../types/api";
-import { useFlash } from "../../../service/FlashProvider";
+import { useFlash } from "../../../context/FlashProvider";
 
 export default function EditBook() {
   const params = useLocalSearchParams();

@@ -3,11 +3,15 @@ import { View, Text, StyleSheet, ActivityIndicator, Dimensions, ScrollView } fro
 import { getBooks } from "../service/api";
 import { Book } from "../types/api";
 import { PieChart, ProgressChart } from "react-native-chart-kit";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect } from "expo-router";
+import { useTheme } from "../context/theme";
 
 const { width: screenWidth } = Dimensions.get("window");
 
 export default function BooksStats() {
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
+
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -34,25 +38,28 @@ export default function BooksStats() {
   );
 
   const chartConfig = {
-    backgroundGradientFrom: "#fff",
-    backgroundGradientTo: "#fff",
+    backgroundGradientFrom: theme.colors.card,
+    backgroundGradientTo: theme.colors.card,
     decimalPlaces: 2,
-    color: (opacity = 1) => `rgba(16,185,129, ${opacity})`,
-    labelColor: (opacity = 1) => `rgba(71,85,105, ${opacity})`,
+    color: (opacity = 1) => {
+      const c = theme.colors.primary;
+      return `${hexToRgba(c, opacity)}`;
+    },
+    labelColor: (opacity = 1) => hexToRgba(theme.colors.text, opacity),
     style: {
       borderRadius: 8,
     },
     propsForDots: {
       r: "6",
       strokeWidth: "2",
-      stroke: "#10b981",
+      stroke: theme.colors.primary,
     },
   };
 
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
@@ -69,15 +76,15 @@ export default function BooksStats() {
     {
       name: "Lus",
       count: readCount,
-      color: "#10b981",
-      legendFontColor: "#0f1724",
+      color: theme.colors.success,
+      legendFontColor: theme.colors.text,
       legendFontSize: 12,
     },
     {
       name: "Non lus",
       count: unreadCount,
-      color: "#64748b",
-      legendFontColor: "#0f1724",
+      color: theme.colors.muted,
+      legendFontColor: theme.colors.text,
       legendFontSize: 12,
     },
   ].filter((d) => d.count > 0);
@@ -93,7 +100,13 @@ export default function BooksStats() {
         ) : (
           <>
             <PieChart
-              data={pieData.map((p) => ({ name: p.name, population: p.count, color: p.color, legendFontColor: p.legendFontColor, legendFontSize: p.legendFontSize }))}
+              data={pieData.map((p) => ({
+                name: p.name,
+                population: p.count,
+                color: p.color,
+                legendFontColor: p.legendFontColor,
+                legendFontSize: p.legendFontSize,
+              }))}
               width={Math.min(screenWidth - 48, 420)}
               height={180}
               accessor="population"
@@ -108,11 +121,11 @@ export default function BooksStats() {
                 <Text style={styles.statLabel}>Total</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: "#10b981" }]}>{readCount}</Text>
+                <Text style={[styles.statNumber, { color: theme.colors.success }]}>{readCount}</Text>
                 <Text style={styles.statLabel}>Lus</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: "#64748b" }]}>{unreadCount}</Text>
+                <Text style={[styles.statNumber, { color: theme.colors.muted }]}>{unreadCount}</Text>
                 <Text style={styles.statLabel}>Non lus</Text>
               </View>
             </View>
@@ -154,29 +167,40 @@ export default function BooksStats() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: "#f6f7fb",
-  },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
-  title: {     
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#0f1724",
-    marginBottom: 16,
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 12,
-    alignItems: "center",
-  },
-  cardTitle: { fontWeight: "700", color: "#0f1724", marginBottom: 8 },
-  hint: { color: "#94a3b8" },
-  statsRow: { flexDirection: "row", marginTop: 8, width: "100%", justifyContent: "space-around" },
-  statItem: { alignItems: "center" },
-  statNumber: { fontSize: 18, fontWeight: "800", color: "#0f1724" },
-  statLabel: { color: "#64748b", fontWeight: "700" },
-});
+function createStyles(theme: ReturnType<typeof useTheme> extends { theme: infer T } ? T : any) {
+  return StyleSheet.create({
+    container: {
+      padding: 16,
+      backgroundColor: theme.colors.background,
+    },
+    center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
+    title: {
+      fontSize: 20,
+      fontWeight: "700",
+      color: theme.colors.text,
+      marginBottom: 16,
+    },
+    card: {
+      backgroundColor: theme.colors.card,
+      borderRadius: 12,
+      padding: 14,
+      marginBottom: 12,
+      alignItems: "center",
+    },
+    cardTitle: { fontWeight: "700", color: theme.colors.text, marginBottom: 8 },
+    hint: { color: theme.colors.muted },
+    statsRow: { flexDirection: "row", marginTop: 8, width: "100%", justifyContent: "space-around" },
+    statItem: { alignItems: "center" },
+    statNumber: { fontSize: 18, fontWeight: "800", color: theme.colors.text },
+    statLabel: { color: theme.colors.muted, fontWeight: "700" },
+  });
+}
+
+function hexToRgba(hex: string, opacity = 1) {
+  const h = hex.replace("#", "");
+  const bigint = parseInt(h.length === 3 ? h.split("").map((c) => c + c).join("") : h, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+}

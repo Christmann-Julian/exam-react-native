@@ -10,22 +10,26 @@ import {
   StyleSheet,
   Platform,
   Image,
+  ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import type { Book } from "../types/api";
 import type { BookFormProps } from "../types/props";
 import Star from "./Star";
-
+import { useTheme } from "../context/theme";
 
 export default function BookForm({
   initial = {},
   onSubmit,
   submitLabel = "Enregistrer",
 }: BookFormProps) {
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
+
   const [name, setName] = useState(initial.name || "");
   const [author, setAuthor] = useState(initial.author || "");
   const [editor, setEditor] = useState(initial.editor || "");
-  const [theme, setTheme] = useState(initial.theme ?? "");
+  const [themeField, setThemeField] = useState(initial.theme ?? "");
   const [year, setYear] = useState(initial.year ? String(initial.year) : "");
   const [read, setRead] = useState(Boolean(initial.read));
   const [favorite, setFavorite] = useState(Boolean(initial.favorite));
@@ -90,7 +94,7 @@ export default function BookForm({
       name: name.trim(),
       author: author.trim(),
       editor: editor.trim(),
-      theme: theme.trim() || null,
+      theme: themeField.trim() || null,
       year: Number(year),
       read,
       favorite,
@@ -109,7 +113,7 @@ export default function BookForm({
   };
 
   return (
-    <View style={styles.wrapper}>
+    <ScrollView style={styles.wrapper}>
       <View style={styles.card}>
         <Text style={styles.label}>Image de couverture</Text>
         {coverUri ? (
@@ -136,7 +140,7 @@ export default function BookForm({
           value={name}
           onChangeText={setName}
           placeholder="Ex. Dune"
-          placeholderTextColor="#9aa4b2"
+          placeholderTextColor={theme.colors.muted}
           returnKeyType="next"
         />
 
@@ -146,7 +150,7 @@ export default function BookForm({
           value={author}
           onChangeText={setAuthor}
           placeholder="Ex. Frank Herbert"
-          placeholderTextColor="#9aa4b2"
+          placeholderTextColor={theme.colors.muted}
           returnKeyType="next"
         />
 
@@ -156,17 +160,17 @@ export default function BookForm({
           value={editor}
           onChangeText={setEditor}
           placeholder="Ex. Chilton Books"
-          placeholderTextColor="#9aa4b2"
+          placeholderTextColor={theme.colors.muted}
           returnKeyType="next"
         />
 
         <Text style={styles.label}>Thème</Text>
         <TextInput
           style={styles.input}
-          value={theme}
-          onChangeText={setTheme}
+          value={themeField}
+          onChangeText={setThemeField}
           placeholder="Ex. Science-fiction"
-          placeholderTextColor="#9aa4b2"
+          placeholderTextColor={theme.colors.muted}
           returnKeyType="next"
         />
 
@@ -179,7 +183,7 @@ export default function BookForm({
               onChangeText={(v) => setYear(v.replace(/[^0-9]/g, ""))}
               keyboardType="numeric"
               placeholder="1965"
-              placeholderTextColor="#9aa4b2"
+              placeholderTextColor={theme.colors.muted}
               returnKeyType="done"
             />
           </View>
@@ -199,7 +203,7 @@ export default function BookForm({
             <Switch
               value={read}
               onValueChange={setRead}
-              thumbColor={Platform.OS === "android" ? (read ? "#007aff" : "#f4f3f4") : undefined}
+              thumbColor={Platform.OS === "android" ? (read ? theme.colors.primary : undefined) : undefined}
             />
           </View>
 
@@ -208,7 +212,7 @@ export default function BookForm({
             <Switch
               value={favorite}
               onValueChange={setFavorite}
-              thumbColor={Platform.OS === "android" ? (favorite ? "#ffb400" : "#f4f3f4") : undefined}
+              thumbColor={Platform.OS === "android" ? (favorite ? theme.colors.accent : undefined) : undefined}
             />
           </View>
         </View>
@@ -219,138 +223,140 @@ export default function BookForm({
           activeOpacity={0.8}
           disabled={loading}
         >
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{submitLabel}</Text>}
+          {loading ? <ActivityIndicator color={theme.colors.card} /> : <Text style={styles.buttonText}>{submitLabel}</Text>}
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#f6f7fb",
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 14,
-    padding: 16,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOpacity: 0.06,
-        shadowOffset: { width: 0, height: 6 },
-        shadowRadius: 12,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
-  },
-  label: {
-    color: "#334155",
-    fontSize: 13,
-    fontWeight: "600",
-    marginBottom: 6,
-  },
-  imagePicker: {
-    backgroundColor: "#eef2ff",
-    paddingVertical: 12,
-    alignItems: "center",
-    borderRadius: 10,
-    marginBottom: 12,
-  },
-  imagePickerText: {
-    color: "#4338ca",
-    fontWeight: "700",
-  },
-  previewRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  preview: {
-    width: 84,
-    height: 120,
-    borderRadius: 8,
-    marginRight: 12,
-    backgroundColor: "#f3f4f6",
-  },
-  previewActions: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  previewBtn: {
-    backgroundColor: "#007aff",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    marginBottom: 8,
-    alignSelf: "flex-start",
-  },
-  previewBtnText: {
-    color: "#fff",
-    fontWeight: "700",
-  },
-  removeBtn: {
-    backgroundColor: "#ef4444",
-  },
-  removeBtnText: {
-    color: "#fff",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#e6eef8",
-    backgroundColor: "#fbfdff",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    fontSize: 15,
-    color: "#0f1724",
-  },
-  row: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 12,
-  },
-  col: {
-    flex: 1,
-  },
-  smallHint: {
-    color: "#94a3b8",
-    fontSize: 12,
-    marginTop: 6,
-  },
-  switchRow: {
-    flexDirection: "column",
-    justifyContent: "space-between",
-    marginTop: 16,
-  },
-  switchItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginTop: 8,
-  },
-  switchLabel: {
-    marginRight: 8,
-    color: "#475569",
-    fontWeight: "600",
-  },
-  button: {
-    marginTop: 18,
-    backgroundColor: "#007aff",
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-});
+function createStyles(theme: ReturnType<typeof useTheme> extends { theme: infer T } ? T : any) {
+  return StyleSheet.create({
+    wrapper: {
+      flex: 1,
+      padding: 16,
+      backgroundColor: theme.colors.background,
+    },
+    card: {
+      backgroundColor: theme.colors.card,
+      borderRadius: 14,
+      padding: 16,
+      ...Platform.select({
+        ios: {
+          shadowColor: "#000",
+          shadowOpacity: 0.06,
+          shadowOffset: { width: 0, height: 6 },
+          shadowRadius: 12,
+        },
+        android: {
+          elevation: 3,
+        },
+      }),
+    },
+    label: {
+      color: theme.colors.text,
+      fontSize: 13,
+      fontWeight: "600",
+      marginBottom: 6,
+    },
+    imagePicker: {
+      backgroundColor: theme.colors.soft,
+      paddingVertical: 12,
+      alignItems: "center",
+      borderRadius: 10,
+      marginBottom: 12,
+    },
+    imagePickerText: {
+      color: theme.colors.primary,
+      fontWeight: "700",
+    },
+    previewRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 12,
+    },
+    preview: {
+      width: 84,
+      height: 120,
+      borderRadius: 8,
+      marginRight: 12,
+      backgroundColor: theme.colors.soft,
+    },
+    previewActions: {
+      flex: 1,
+      justifyContent: "center",
+    },
+    previewBtn: {
+      backgroundColor: theme.colors.primary,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      borderRadius: 10,
+      marginBottom: 8,
+      alignSelf: "flex-start",
+    },
+    previewBtnText: {
+      color: theme.colors.card,
+      fontWeight: "700",
+    },
+    removeBtn: {
+      backgroundColor: theme.colors.danger,
+    },
+    removeBtnText: {
+      color: theme.colors.card,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: theme.colors.soft,
+      backgroundColor: theme.colors.card,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderRadius: 10,
+      fontSize: 15,
+      color: theme.colors.text,
+    },
+    row: {
+      flexDirection: "row",
+      gap: 12,
+      marginTop: 12,
+    },
+    col: {
+      flex: 1,
+    },
+    smallHint: {
+      color: theme.colors.muted,
+      fontSize: 12,
+      marginTop: 6,
+    },
+    switchRow: {
+      flexDirection: "column",
+      justifyContent: "space-between",
+      marginTop: 16,
+    },
+    switchItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      marginTop: 8,
+    },
+    switchLabel: {
+      marginRight: 8,
+      color: theme.colors.text,
+      fontWeight: "600",
+    },
+    button: {
+      marginTop: 18,
+      backgroundColor: theme.colors.primary,
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: "center",
+    },
+    buttonDisabled: {
+      opacity: 0.7,
+    },
+    buttonText: {
+      color: theme.colors.card,
+      fontWeight: "700",
+      fontSize: 16,
+    },
+  });
+}
