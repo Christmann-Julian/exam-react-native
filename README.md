@@ -1,6 +1,6 @@
 # Examen react native 
 
-Voici mon rendu pour le projet d'application mobile de bibliothèque de livre avec react native et expo
+Voici mon rendu pour le projet d'application mobile de bibliothèque de livre avec react native et expo.
 
 ## Lancer le projet
 
@@ -40,7 +40,7 @@ Voici mon rendu pour le projet d'application mobile de bibliothèque de livre av
    npx expo start
    ```
 
-## Créateurs
+## Créateur
 
 **Christmann Julian**
 
